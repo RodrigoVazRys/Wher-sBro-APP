@@ -1,5 +1,6 @@
 package com.kazedev.wher_sbro.features.radar.presentation.viewmodels
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.kazedev.wher_sbro.features.radar.domain.repositories.RoomRepository
@@ -26,21 +27,23 @@ class LobbyViewModel @Inject constructor(
 
     fun createRoom() {
         viewModelScope.launch {
+            Log.d("LobbyVM", "createRoom() llamado")
             _uiState.update { it.copy(isLoading = true, error = null) }
-            roomRepository.createRoom()
-                .onSuccess { response ->
-                    _uiState.update {
-                        it.copy(
-                            isLoading = false,
-                            roomCode = response.roomCode
-                        )
+
+            try {
+                Log.d("LobbyVM", "Llamando al repositorio...")
+                roomRepository.createRoom()
+                    .onSuccess { response ->
+                        Log.d("LobbyVM", "Éxito: roomCode = ${response.roomCode}")
+                        _uiState.update { it.copy(isLoading = false, roomCode = response.roomCode) }
                     }
-                }
-                .onFailure { e ->
-                    _uiState.update {
-                        it.copy(isLoading = false, error = e.message)
+                    .onFailure { e ->
+                        Log.e("LobbyVM", "Failure: ${e.message}", e)
+                        _uiState.update { it.copy(isLoading = false, error = e.message) }
                     }
-                }
+            } catch (e: Exception) {
+                Log.e("LobbyVM", "Exception sin capturar: ${e.message}", e)
+            }
         }
     }
 
@@ -68,5 +71,9 @@ class LobbyViewModel @Inject constructor(
                     }
                 }
         }
+    }
+
+    fun clearRoomCode() {
+        _uiState.update { it.copy(roomCode = "") }
     }
 }

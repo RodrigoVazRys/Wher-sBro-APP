@@ -9,7 +9,7 @@ import retrofit2.http.Path
 
 interface RoomApiService {
 
-    @POST("room/create")
+    @POST("rooms/create")
     suspend fun createRoom(): CreateRoomResponse
 
     @POST("rooms/{code}/join")
@@ -17,4 +17,5 @@ interface RoomApiService {
         @Path("code") code: String,
         @Body request: JoinRoomRequest
     ): JoinRoomResponse
+
 }

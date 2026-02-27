@@ -11,7 +11,7 @@ interface RoomRepository {
         username: String
     ): Result<JoinRoomResponse>
 
-    suspend fun leaveRoom( code : String )
+    //suspend fun leaveRoom( code : String )
 
     suspend fun createRoom (): Result<CreateRoomResponse>
 

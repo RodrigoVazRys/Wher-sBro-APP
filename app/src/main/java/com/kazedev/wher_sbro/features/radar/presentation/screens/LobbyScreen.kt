@@ -32,6 +32,7 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.kazedev.wher_sbro.features.auth.presentation.components.FooterStat
 import com.kazedev.wher_sbro.features.auth.presentation.components.TacticalInputField
+import com.kazedev.wher_sbro.features.radar.presentation.components.RoomCodeDialog
 import com.kazedev.wher_sbro.features.radar.presentation.viewmodels.LobbyViewModel
 
 @Composable
@@ -41,9 +42,6 @@ fun LobbyScreen(viewModel: LobbyViewModel = hiltViewModel()) {
     val terminalGreen = Color(0xFF1AFA82)
     val darkBg = Color(0xFF030C05)
     val fieldBg = Color(0xFF0A160D)
-
-    val operatorName = "ROY"
-    val frequencyCode = "2R2D4"
 
     Surface(
         modifier = Modifier.fillMaxSize(),
@@ -78,23 +76,18 @@ fun LobbyScreen(viewModel: LobbyViewModel = hiltViewModel()) {
                         fontWeight = FontWeight.Bold
                     )
                 }
-                Text(
-                    text = "● v1.0.0",
-                    color = terminalGreen.copy(alpha = 0.7f),
-                    style = MaterialTheme.typography.labelSmall,
-                    fontFamily = FontFamily.Monospace
-                )
+
             }
 
             Spacer(modifier = Modifier.height(40.dp))
 
             StaticRadar()
 
-            Spacer(modifier = Modifier.height(32.dp))
+            Spacer(modifier = Modifier.height(100.dp))
 
             Text(
                 text = buildAnnotatedString {
-                    append("WHER-S")
+                    append("WHER'S")
                     withStyle(style = SpanStyle(color = terminalGreen)) {
                         append("BRO")
                     }
@@ -115,50 +108,10 @@ fun LobbyScreen(viewModel: LobbyViewModel = hiltViewModel()) {
                 fontFamily = FontFamily.Monospace
             )
 
-            Spacer(modifier = Modifier.height(40.dp))
-
-            Column(modifier = Modifier.fillMaxWidth()) {
-                Text(
-                    text = "OPERATOR NAME",
-                    color = terminalGreen,
-                    style = MaterialTheme.typography.labelSmall,
-                    fontFamily = FontFamily.Monospace,
-                    fontWeight = FontWeight.Bold
-                )
-                Spacer(modifier = Modifier.height(8.dp))
-                OutlinedTextField(
-                    value = operatorName,
-                    onValueChange = { },
-                    readOnly = true,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .border(1.dp, Color.White.copy(alpha = 0.1f), RoundedCornerShape(8.dp)),
-                    colors = OutlinedTextFieldDefaults.colors(
-                        focusedContainerColor = fieldBg,
-                        unfocusedContainerColor = fieldBg,
-                        focusedBorderColor = Color.Transparent,
-                        unfocusedBorderColor = Color.Transparent,
-                        focusedTextColor = Color.Gray, // Texto atenuado simulando read-only
-                        unfocusedTextColor = Color.Gray
-                    ),
-                    leadingIcon = { Icon(Icons.Default.Person, null, tint = Color.Gray) }
-                )
-            }
-
             Spacer(modifier = Modifier.height(24.dp))
 
-            TacticalInputField(
-                value = frequencyCode,
-                onValueChange = { },
-                label = "FREQUENCY CODE",
-                placeholder = "# X7-ALPHA-9",
-                icon = Icons.Default.Numbers
-            )
-
-            Spacer(modifier = Modifier.height(32.dp))
-
             Button(
-                onClick = { },
+                onClick = viewModel::createRoom,
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(60.dp),
@@ -216,6 +169,20 @@ fun LobbyScreen(viewModel: LobbyViewModel = hiltViewModel()) {
                 Text("LAT: 24MS", color = Color.Gray, fontSize = 10.sp, fontFamily = FontFamily.Monospace)
                 Text("REGION: MX-SOUTH", color = Color.Gray, fontSize = 10.sp, fontFamily = FontFamily.Monospace)
             }
+
+            Spacer(modifier = Modifier.height(48.dp))
+            Text(
+                text = "● v1.0.0",
+                color = terminalGreen.copy(alpha = 0.7f),
+                style = MaterialTheme.typography.labelSmall,
+                fontFamily = FontFamily.Monospace
+            )
+        }
+        if (uiState.roomCode.isNotBlank()) {
+            RoomCodeDialog(
+                roomCode = uiState.roomCode,
+                onDismiss = { viewModel.clearRoomCode() }
+            )
         }
     }
 }

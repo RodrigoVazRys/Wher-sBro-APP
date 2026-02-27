@@ -36,4 +36,4 @@ class RoomRepositoryImpl @Inject constructor(
                 Result.failure(e)
             }
         }
-    }
+}
