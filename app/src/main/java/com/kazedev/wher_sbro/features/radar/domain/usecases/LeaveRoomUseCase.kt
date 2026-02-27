@@ -8,7 +8,7 @@ class LeaveRoomUseCase @Inject constructor(
     private val repository: RoomRepository
 ){
     suspend operator fun invoke(code : String){
-        repository.leave(code)
+        repository.leaveRoom(code)
 
     }
 }

@@ -14,6 +14,8 @@ import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Wifi
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
@@ -27,11 +29,15 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.kazedev.wher_sbro.features.auth.presentation.components.FooterStat
 import com.kazedev.wher_sbro.features.auth.presentation.components.TacticalInputField
+import com.kazedev.wher_sbro.features.radar.presentation.viewmodels.LobbyViewModel
 
 @Composable
-fun LobbyScreen() {
+fun LobbyScreen(viewModel: LobbyViewModel = hiltViewModel()) {
+    val uiState by viewModel.uiState.collectAsState()
+
     val terminalGreen = Color(0xFF1AFA82)
     val darkBg = Color(0xFF030C05)
     val fieldBg = Color(0xFF0A160D)

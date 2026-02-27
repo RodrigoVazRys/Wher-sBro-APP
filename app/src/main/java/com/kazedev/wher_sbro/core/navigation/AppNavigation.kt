@@ -11,6 +11,7 @@ import com.kazedev.wher_sbro.features.auth.presentation.viewmodels.LoginViewMode
 import com.kazedev.wher_sbro.features.auth.presentation.viewmodels.RegisterViewModel
 // Importamos tu nueva pantalla del lobby
 import com.kazedev.wher_sbro.features.radar.presentation.screens.LobbyScreen
+import com.kazedev.wher_sbro.features.radar.presentation.viewmodels.LobbyViewModel
 
 
 @Composable
@@ -56,8 +57,8 @@ fun AppNavigation() {
 
         // --- 3. PANTALLA PRINCIPAL (LOBBY) ---
         composable<RadarLobbyRoute> {
-            // <-- CAMBIO 2: Inyectamos la UI estática del lobby
-            LobbyScreen()
+            val viewModel: LobbyViewModel = hiltViewModel()
+            LobbyScreen(viewModel = viewModel)
         }
     }
 }
