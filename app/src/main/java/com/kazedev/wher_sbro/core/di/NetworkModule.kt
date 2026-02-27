@@ -24,7 +24,10 @@ object NetworkModule {
     fun provideAuthInterceptor(tokenManager: TokenManager): Interceptor {
         return Interceptor { chain ->
             val request = chain.request().newBuilder()
-            tokenManager.token?.let {
+
+            val token = kotlinx.coroutines.runBlocking { tokenManager.getToken() }
+
+            token?.let {
                 request.addHeader("Authorization", "Bearer $it")
             }
             chain.proceed(request.build())

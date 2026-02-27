@@ -7,6 +7,7 @@ import com.kazedev.wher_sbro.features.auth.data.datasources.remote.models.LoginR
 import com.kazedev.wher_sbro.features.auth.domain.entities.User
 import com.kazedev.wher_sbro.features.auth.domain.repositories.AuthRepository
 import javax.inject.Inject
+import kotlinx.coroutines.runBlocking
 
 class AuthRepositoryImpl @Inject constructor(
     private val apiService: AuthApiService,
@@ -18,18 +19,19 @@ class AuthRepositoryImpl @Inject constructor(
             val request = LoginRequest(email, pass)
             val response = apiService.login(request)
 
-            // Guardamos el token en nuestro SSOT en memoria
-            tokenManager.token = response.accessToken
+            tokenManager.saveSession(
+                token = response.accessToken,
+                userId = response.userId,
+                username = response.username
+            )
 
-            // Retornamos el modelo de Dominio
             Result.success(response.toDomain())
         } catch (e: Exception) {
             Result.failure(e)
         }
     }
 
-    override suspend fun register(email: String, pass: String): Result<Boolean> {
-        // TODO: Implementar registro
+    override suspend fun register(username: String, email: String, pass: String): Result<Boolean> {
         return Result.success(true)
     }
 }
