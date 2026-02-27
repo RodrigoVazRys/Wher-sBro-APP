@@ -64,8 +64,8 @@ class LobbyViewModel @Inject constructor(
         }
     }
 
-    fun joinRoom() {
-        val code = _uiState.value.frequencyCode
+    // <-- NUEVO: Ya no pide parámetros, usa los datos del State
+    fun joinRoom(code: String) {
         val userId = _uiState.value.userId
         val username = _uiState.value.operatorName
 
@@ -87,9 +87,7 @@ class LobbyViewModel @Inject constructor(
                     }
                 }
                 .onFailure { e ->
-                    _uiState.update {
-                        it.copy(isLoading = false, error = e.message)
-                    }
+                    _uiState.update { it.copy(isLoading = false, error = e.message) }
                 }
         }
     }

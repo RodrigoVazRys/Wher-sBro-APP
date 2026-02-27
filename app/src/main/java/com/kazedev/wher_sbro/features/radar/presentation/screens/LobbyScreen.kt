@@ -14,9 +14,11 @@ import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Wifi
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
@@ -31,10 +33,13 @@ import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.kazedev.wher_sbro.features.auth.presentation.components.FooterStat
 import com.kazedev.wher_sbro.features.auth.presentation.components.TacticalInputField
 import com.kazedev.wher_sbro.features.radar.presentation.components.RoomCodeDialog
+import com.kazedev.wher_sbro.features.radar.presentation.components.RoomCodeInputDialog
 import com.kazedev.wher_sbro.features.radar.presentation.viewmodels.LobbyViewModel
-
+import androidx.compose.runtime.LaunchedEffect
 @Composable
 fun LobbyScreen(
     onNavigateToRadar: (roomCode: String, targetName: String) -> Unit,
@@ -42,6 +47,8 @@ fun LobbyScreen(
     viewModel: LobbyViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsState()
+    var showJoinDialog by remember { mutableStateOf(false) }
+
 
     LaunchedEffect(uiState.roomCode) {
         val code = uiState.roomCode
@@ -75,6 +82,7 @@ fun LobbyScreen(
                 .padding(24.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
+
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween,
@@ -96,11 +104,14 @@ fun LobbyScreen(
                         fontWeight = FontWeight.Bold
                     )
                 }
+
             }
 
             Spacer(modifier = Modifier.height(40.dp))
-            StaticRadar()
-            Spacer(modifier = Modifier.height(40.dp))
+
+            //StaticRadar()
+
+            Spacer(modifier = Modifier.height(100.dp))
 
             Text(
                 text = buildAnnotatedString {
@@ -127,28 +138,6 @@ fun LobbyScreen(
 
             Spacer(modifier = Modifier.height(24.dp))
 
-            // --- NUEVO: Agregamos los campos de texto que faltaban ---
-            TacticalInputField(
-                value = uiState.operatorName,
-                onValueChange = { }, // Es solo de lectura, el usuario no lo puede cambiar aquí
-                label = "OPERATOR NAME",
-                placeholder = "Cargando...",
-                icon = Icons.Default.Person
-            )
-
-            Spacer(modifier = Modifier.height(24.dp))
-
-            TacticalInputField(
-                value = uiState.frequencyCode,
-                onValueChange = { viewModel.onFrequencyCodeChange(it) },
-                label = "FREQUENCY CODE",
-                placeholder = "# XXX-XXX",
-                icon = Icons.Default.Numbers
-            )
-
-            Spacer(modifier = Modifier.height(32.dp))
-
-            // Botón Crear Sala
             Button(
                 onClick = viewModel::createRoom,
                 modifier = Modifier
@@ -157,16 +146,25 @@ fun LobbyScreen(
                 shape = RoundedCornerShape(8.dp),
                 colors = ButtonDefaults.buttonColors(containerColor = terminalGreen)
             ) {
-                Icon(Icons.Default.Add, contentDescription = null, tint = Color.Black, modifier = Modifier.size(20.dp))
+                Icon(
+                    imageVector = Icons.Default.Add,
+                    contentDescription = null,
+                    tint = Color.Black,
+                    modifier = Modifier.size(20.dp)
+                )
                 Spacer(modifier = Modifier.width(8.dp))
-                Text("CREAR NUEVA SALA", color = Color.Black, fontWeight = FontWeight.ExtraBold, fontFamily = FontFamily.Monospace)
+                Text(
+                    text = "CREAR NUEVA SALA",
+                    color = Color.Black,
+                    fontWeight = FontWeight.ExtraBold,
+                    fontFamily = FontFamily.Monospace
+                )
             }
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            // Botón Unirse a Sala
             OutlinedButton(
-                onClick = { viewModel.joinRoom() }, // <-- NUEVO: Llamamos a joinRoom() sin parámetros
+                onClick = { showJoinDialog = true },
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(60.dp),
@@ -174,9 +172,19 @@ fun LobbyScreen(
                 colors = ButtonDefaults.outlinedButtonColors(containerColor = fieldBg),
                 border = androidx.compose.foundation.BorderStroke(1.dp, terminalGreen.copy(alpha = 0.5f))
             ) {
-                Icon(Icons.Default.ArrowForward, contentDescription = null, tint = terminalGreen, modifier = Modifier.size(20.dp))
+                Icon(
+                    imageVector = Icons.Default.ArrowForward,
+                    contentDescription = null,
+                    tint = terminalGreen,
+                    modifier = Modifier.size(20.dp)
+                )
                 Spacer(modifier = Modifier.width(8.dp))
-                Text("UNIRSE A SALA", color = terminalGreen, fontWeight = FontWeight.Bold, fontFamily = FontFamily.Monospace)
+                Text(
+                    text = "UNIRSE A SALA",
+                    color = terminalGreen,
+                    fontWeight = FontWeight.Bold,
+                    fontFamily = FontFamily.Monospace
+                )
             }
 
             Spacer(modifier = Modifier.height(48.dp))
@@ -189,16 +197,36 @@ fun LobbyScreen(
                 Text("LAT: 24MS", color = Color.Gray, fontSize = 10.sp, fontFamily = FontFamily.Monospace)
                 Text("REGION: MX-SOUTH", color = Color.Gray, fontSize = 10.sp, fontFamily = FontFamily.Monospace)
             }
-        }
 
-        // Diálogo para mostrar el código de la sala
+            Spacer(modifier = Modifier.height(48.dp))
+            Text(
+                text = "● v1.0.0",
+                color = terminalGreen.copy(alpha = 0.7f),
+                style = MaterialTheme.typography.labelSmall,
+                fontFamily = FontFamily.Monospace
+            )
+        }
         if (uiState.roomCode.isNotBlank()) {
             RoomCodeDialog(
                 roomCode = uiState.roomCode,
                 onDismiss = { viewModel.clearRoomCode() }
             )
+
         }
-    }
+        if (showJoinDialog) {
+            RoomCodeInputDialog(
+                onConfirm = { code ->
+                    viewModel.joinRoom(code)
+                    showJoinDialog = false
+                },
+                onDismiss = { showJoinDialog = false }
+            )
+        }
+        LaunchedEffect(uiState.usersInRoom) {
+            if (uiState.usersInRoom.isNotEmpty()) {
+                onNavigateToRadar(uiState.roomCode, uiState.usersInRoom.first())
+            }
+        }
 }
 
 @Composable
@@ -213,12 +241,34 @@ fun StaticRadar() {
             val center = Offset(size.width / 2, size.height / 2)
             val radius = size.width / 2
 
-            drawCircle(color = terminalGreen.copy(alpha = 0.15f), radius = radius, style = Stroke(1f))
-            drawCircle(color = terminalGreen.copy(alpha = 0.15f), radius = radius * 0.66f, style = Stroke(1f))
-            drawCircle(color = terminalGreen.copy(alpha = 0.15f), radius = radius * 0.33f, style = Stroke(1f))
+            drawCircle(
+                color = terminalGreen.copy(alpha = 0.15f),
+                radius = radius,
+                style = Stroke(1f)
+            )
+            drawCircle(
+                color = terminalGreen.copy(alpha = 0.15f),
+                radius = radius * 0.66f,
+                style = Stroke(1f)
+            )
+            drawCircle(
+                color = terminalGreen.copy(alpha = 0.15f),
+                radius = radius * 0.33f,
+                style = Stroke(1f)
+            )
 
-            drawLine(color = terminalGreen.copy(alpha = 0.15f), start = Offset(center.x, 0f), end = Offset(center.x, size.height), strokeWidth = 1f)
-            drawLine(color = terminalGreen.copy(alpha = 0.15f), start = Offset(0f, center.y), end = Offset(size.width, center.y), strokeWidth = 1f)
+            drawLine(
+                color = terminalGreen.copy(alpha = 0.15f),
+                start = Offset(center.x, 0f),
+                end = Offset(center.x, size.height),
+                strokeWidth = 1f
+            )
+            drawLine(
+                color = terminalGreen.copy(alpha = 0.15f),
+                start = Offset(0f, center.y),
+                end = Offset(size.width, center.y),
+                strokeWidth = 1f
+            )
 
             drawArc(
                 brush = Brush.sweepGradient(
@@ -236,8 +286,16 @@ fun StaticRadar() {
 
             drawCircle(color = terminalGreen, radius = 5.dp.toPx(), center = center)
 
-            drawCircle(color = Color(0xFFE53935), radius = 4.dp.toPx(), center = Offset(center.x - 40f, center.y - 50f))
-            drawCircle(color = terminalGreen, radius = 4.dp.toPx(), center = Offset(center.x + 70f, center.y + 30f))
+            drawCircle(
+                color = Color(0xFFE53935),
+                radius = 4.dp.toPx(),
+                center = Offset(center.x - 40f, center.y - 50f)
+            )
+            drawCircle(
+                color = terminalGreen,
+                radius = 4.dp.toPx(),
+                center = Offset(center.x + 70f, center.y + 30f)
+            )
         }
     }
-}
+}}
