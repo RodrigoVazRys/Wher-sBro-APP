@@ -7,7 +7,7 @@ import com.kazedev.wher_sbro.features.radar.domain.repositories.RoomRepository
 class JoinRoomUseCase @Inject constructor(
     private val repository: RoomRepository
 ){
-    suspend operator fun invoke(code : String) {
-        repository.join(code)
+    suspend operator fun invoke(code : String, userId : Int, username : String) {
+        repository.joinRoom(code, userId, username)
     }
 }

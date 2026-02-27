@@ -10,6 +10,8 @@ import com.kazedev.wher_sbro.features.auth.presentation.screens.RegisterScreen
 import com.kazedev.wher_sbro.features.auth.presentation.viewmodels.LoginViewModel
 import com.kazedev.wher_sbro.features.auth.presentation.viewmodels.RegisterViewModel
 import com.kazedev.wher_sbro.features.radar.presentation.screens.LobbyScreen
+import com.kazedev.wher_sbro.features.radar.presentation.viewmodels.LobbyViewModel
+
 import com.kazedev.wher_sbro.features.radar.presentation.screens.RadarScreen
 
 @Composable
@@ -54,6 +56,9 @@ fun AppNavigation() {
         }
 
         // --- 3. PANTALLA PRINCIPAL (LOBBY) ---
+        composable<RadarLobbyRoute> {
+            val viewModel: LobbyViewModel = hiltViewModel()
+            LobbyScreen(viewModel = viewModel)
 //        composable<RadarLobbyRoute> {
 //            // Pasamos los callbacks reales para que funcione cuando la uses
 //            LobbyScreen(
