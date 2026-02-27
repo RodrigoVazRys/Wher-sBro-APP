@@ -48,13 +48,13 @@ android {
     productFlavors {
         create("dev") {
             dimension = "environment"
-            buildConfigField("String", "BASE_URL_AUTH", "\"https://wheresbro.alejandroz.cloud\"")
+            buildConfigField("String", "BASE_URL_AUTH", "\"https://wheresbro.alejandroz.cloud/\"")
             resValue("string", "app_name", "Demo (DEV)")
         }
 
         create("prod") {
             dimension = "environment"
-            buildConfigField("String", "BASE_URL_AUTH", "\"https://wheresbro.alejandroz.cloud\"")
+            buildConfigField("String", "BASE_URL_AUTH", "\"https://wheresbro.alejandroz.cloud/\"")
             resValue("string", "app_name", "Demo")
         }
     }

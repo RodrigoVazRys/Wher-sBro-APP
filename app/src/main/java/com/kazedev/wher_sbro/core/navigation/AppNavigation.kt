@@ -1,14 +1,12 @@
 package com.kazedev.wher_sbro.core.navigation
 
 import androidx.compose.runtime.Composable
-import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.toRoute
 import com.kazedev.wher_sbro.features.auth.presentation.screens.LoginScreen
 import com.kazedev.wher_sbro.features.auth.presentation.screens.RegisterScreen
-import com.kazedev.wher_sbro.features.auth.presentation.viewmodels.LoginViewModel
-import com.kazedev.wher_sbro.features.auth.presentation.viewmodels.RegisterViewModel
 import com.kazedev.wher_sbro.features.radar.presentation.screens.LobbyScreen
 import com.kazedev.wher_sbro.features.radar.presentation.screens.RadarScreen
 
@@ -20,29 +18,26 @@ fun AppNavigation() {
         navController = navController,
         startDestination = LoginRoute
     ) {
-
         composable<LoginRoute> {
-            val viewModel: LoginViewModel = hiltViewModel()
             LoginScreen(
-                viewModel = viewModel,
                 onNavigateHome = {
                     navController.navigate(RadarLobbyRoute) {
                         popUpTo(LoginRoute) { inclusive = true }
+                        launchSingleTop = true
                     }
                 },
                 onNavigateToRegister = {
-                    navController.navigate(RegisterRoute)
+                    navController.navigate(RegisterRoute) { launchSingleTop = true }
                 }
             )
         }
 
         composable<RegisterRoute> {
-            val viewModel: RegisterViewModel = hiltViewModel()
             RegisterScreen(
-                viewModel = viewModel,
                 onRegisterSuccess = {
                     navController.navigate(RadarLobbyRoute) {
                         popUpTo(LoginRoute) { inclusive = true }
+                        launchSingleTop = true
                     }
                 },
                 onNavigateToLogin = {
@@ -51,24 +46,26 @@ fun AppNavigation() {
             )
         }
 
-//        composable<RadarLobbyRoute> {
-//            // Pasamos los callbacks reales para que funcione cuando la uses
-//            LobbyScreen(
-//                onNavigateToRadar = { room, user ->
-//                    navController.navigate(RadarRoute)
-//                }
-//            )
-//        }
+        composable<RadarLobbyRoute> {
+            LobbyScreen(
+                onNavigateToRadar = { roomCode, targetName ->
+                    navController.navigate(RadarRoute(roomCode, targetName)) {
+                        launchSingleTop = true
+                    }
+                }
+            )
+        }
 
-        // --- 4. PANTALLA DEL RADAR ---
-        composable<RadarRoute> {
+        composable<RadarRoute> { backStackEntry ->
+            val args = backStackEntry.toRoute<RadarRoute>()
+
             RadarScreen(
-                roomCode = "2R2DA",     // Valor hardcodeado temporal
-                targetName = "ROY",  // Valor hardcodeado temporal
+                roomCode = args.roomCode,
+                targetName = args.targetName,
                 onDisconnect = {
-                    // Para probar, hacemos que el botón de desconexión nos regrese al Lobby
                     navController.navigate(RadarLobbyRoute) {
-                        popUpTo(RadarRoute) { inclusive = true }
+                        popUpTo(RadarLobbyRoute) { inclusive = false }
+                        launchSingleTop = true
                     }
                 }
             )

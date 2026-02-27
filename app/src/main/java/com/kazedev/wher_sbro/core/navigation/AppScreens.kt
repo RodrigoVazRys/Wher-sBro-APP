@@ -12,4 +12,7 @@ object RegisterRoute
 object RadarLobbyRoute
 
 @Serializable
-object RadarRoute
+data class RadarRoute(
+    val roomCode: String,
+    val targetName: String
+)

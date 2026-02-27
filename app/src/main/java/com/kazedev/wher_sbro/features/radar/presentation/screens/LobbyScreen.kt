@@ -14,6 +14,7 @@ import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Wifi
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
@@ -30,14 +31,30 @@ import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
-import com.kazedev.wher_sbro.features.auth.presentation.components.FooterStat
 import com.kazedev.wher_sbro.features.auth.presentation.components.TacticalInputField
 import com.kazedev.wher_sbro.features.radar.presentation.components.RoomCodeDialog
 import com.kazedev.wher_sbro.features.radar.presentation.viewmodels.LobbyViewModel
 
 @Composable
-fun LobbyScreen(viewModel: LobbyViewModel = hiltViewModel()) {
+fun LobbyScreen(
+    onNavigateToRadar: (roomCode: String, targetName: String) -> Unit,
+    viewModel: LobbyViewModel = hiltViewModel()
+) {
     val uiState by viewModel.uiState.collectAsState()
+
+    // Cuando el VM ya tenga sala lista, navegamos
+    LaunchedEffect(uiState.roomCode) {
+        val code = uiState.roomCode
+        if (code.isNotBlank()) {
+            // Elige de dónde sale el targetName (por ahora uso operatorName como fallback)
+            val targetName = uiState.operatorName.ifBlank { "Target" }
+
+            onNavigateToRadar(code, targetName)
+
+            // Importante: evitar que se vuelva a disparar al recomponer/volver
+            viewModel.clearRoomCode()
+        }
+    }
 
     val terminalGreen = Color(0xFF1AFA82)
     val darkBg = Color(0xFF030C05)
@@ -54,7 +71,6 @@ fun LobbyScreen(viewModel: LobbyViewModel = hiltViewModel()) {
                 .padding(24.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween,
@@ -76,14 +92,11 @@ fun LobbyScreen(viewModel: LobbyViewModel = hiltViewModel()) {
                         fontWeight = FontWeight.Bold
                     )
                 }
-
             }
 
             Spacer(modifier = Modifier.height(40.dp))
-
             StaticRadar()
-
-            Spacer(modifier = Modifier.height(100.dp))
+            Spacer(modifier = Modifier.height(40.dp))
 
             Text(
                 text = buildAnnotatedString {
@@ -110,6 +123,28 @@ fun LobbyScreen(viewModel: LobbyViewModel = hiltViewModel()) {
 
             Spacer(modifier = Modifier.height(24.dp))
 
+            // --- NUEVO: Agregamos los campos de texto que faltaban ---
+            TacticalInputField(
+                value = uiState.operatorName,
+                onValueChange = { }, // Es solo de lectura, el usuario no lo puede cambiar aquí
+                label = "OPERATOR NAME",
+                placeholder = "Cargando...",
+                icon = Icons.Default.Person
+            )
+
+            Spacer(modifier = Modifier.height(24.dp))
+
+            TacticalInputField(
+                value = uiState.frequencyCode,
+                onValueChange = { viewModel.onFrequencyCodeChange(it) },
+                label = "FREQUENCY CODE",
+                placeholder = "# XXX-XXX",
+                icon = Icons.Default.Numbers
+            )
+
+            Spacer(modifier = Modifier.height(32.dp))
+
+            // Botón Crear Sala
             Button(
                 onClick = viewModel::createRoom,
                 modifier = Modifier
@@ -118,25 +153,16 @@ fun LobbyScreen(viewModel: LobbyViewModel = hiltViewModel()) {
                 shape = RoundedCornerShape(8.dp),
                 colors = ButtonDefaults.buttonColors(containerColor = terminalGreen)
             ) {
-                Icon(
-                    imageVector = Icons.Default.Add,
-                    contentDescription = null,
-                    tint = Color.Black,
-                    modifier = Modifier.size(20.dp)
-                )
+                Icon(Icons.Default.Add, contentDescription = null, tint = Color.Black, modifier = Modifier.size(20.dp))
                 Spacer(modifier = Modifier.width(8.dp))
-                Text(
-                    text = "CREAR NUEVA SALA",
-                    color = Color.Black,
-                    fontWeight = FontWeight.ExtraBold,
-                    fontFamily = FontFamily.Monospace
-                )
+                Text("CREAR NUEVA SALA", color = Color.Black, fontWeight = FontWeight.ExtraBold, fontFamily = FontFamily.Monospace)
             }
 
             Spacer(modifier = Modifier.height(16.dp))
 
+            // Botón Unirse a Sala
             OutlinedButton(
-                onClick = { },
+                onClick = { viewModel.joinRoom() }, // <-- NUEVO: Llamamos a joinRoom() sin parámetros
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(60.dp),
@@ -144,19 +170,9 @@ fun LobbyScreen(viewModel: LobbyViewModel = hiltViewModel()) {
                 colors = ButtonDefaults.outlinedButtonColors(containerColor = fieldBg),
                 border = androidx.compose.foundation.BorderStroke(1.dp, terminalGreen.copy(alpha = 0.5f))
             ) {
-                Icon(
-                    imageVector = Icons.Default.ArrowForward,
-                    contentDescription = null,
-                    tint = terminalGreen,
-                    modifier = Modifier.size(20.dp)
-                )
+                Icon(Icons.Default.ArrowForward, contentDescription = null, tint = terminalGreen, modifier = Modifier.size(20.dp))
                 Spacer(modifier = Modifier.width(8.dp))
-                Text(
-                    text = "UNIRSE A SALA",
-                    color = terminalGreen,
-                    fontWeight = FontWeight.Bold,
-                    fontFamily = FontFamily.Monospace
-                )
+                Text("UNIRSE A SALA", color = terminalGreen, fontWeight = FontWeight.Bold, fontFamily = FontFamily.Monospace)
             }
 
             Spacer(modifier = Modifier.height(48.dp))
@@ -169,15 +185,9 @@ fun LobbyScreen(viewModel: LobbyViewModel = hiltViewModel()) {
                 Text("LAT: 24MS", color = Color.Gray, fontSize = 10.sp, fontFamily = FontFamily.Monospace)
                 Text("REGION: MX-SOUTH", color = Color.Gray, fontSize = 10.sp, fontFamily = FontFamily.Monospace)
             }
-
-            Spacer(modifier = Modifier.height(48.dp))
-            Text(
-                text = "● v1.0.0",
-                color = terminalGreen.copy(alpha = 0.7f),
-                style = MaterialTheme.typography.labelSmall,
-                fontFamily = FontFamily.Monospace
-            )
         }
+
+        // Diálogo para mostrar el código de la sala
         if (uiState.roomCode.isNotBlank()) {
             RoomCodeDialog(
                 roomCode = uiState.roomCode,

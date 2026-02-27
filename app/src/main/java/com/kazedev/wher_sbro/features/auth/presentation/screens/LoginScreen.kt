@@ -22,6 +22,7 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.kazedev.wher_sbro.R
 import com.kazedev.wher_sbro.features.auth.presentation.viewmodels.LoginViewModel
@@ -29,12 +30,13 @@ import com.kazedev.wher_sbro.features.auth.presentation.viewmodels.LoginViewMode
 import com.kazedev.wher_sbro.features.auth.presentation.components.HudCorners
 import com.kazedev.wher_sbro.features.auth.presentation.components.TacticalInputField
 import com.kazedev.wher_sbro.features.auth.presentation.components.FooterStat
+import com.kazedev.wher_sbro.features.auth.presentation.viewmodels.LoginUiState
 
 @Composable
 fun LoginScreen(
-    viewModel: LoginViewModel,
     onNavigateHome: () -> Unit,
-    onNavigateToRegister: () -> Unit
+    onNavigateToRegister: () -> Unit,
+    viewModel: LoginViewModel = hiltViewModel()
 ) {
     val email by viewModel.email.collectAsStateWithLifecycle()
     val password by viewModel.password.collectAsStateWithLifecycle()
@@ -43,16 +45,11 @@ fun LoginScreen(
     val terminalGreen = Color(0xFF1AFA82)
     val darkBg = Color(0xFF030C05)
 
-    val infiniteTransition = rememberInfiniteTransition(label = "flicker")
-    val alpha by infiniteTransition.animateFloat(
-        initialValue = 0.4f,
-        targetValue = 1f,
-        animationSpec = infiniteRepeatable(
-            animation = tween(durationMillis = 150, easing = LinearEasing),
-            repeatMode = RepeatMode.Reverse
-        ),
-        label = "alpha"
-    )
+    LaunchedEffect(uiState) {
+        if (uiState is LoginUiState.Success) {
+            onNavigateHome()
+        }
+    }
 
     Surface(
         modifier = Modifier.fillMaxSize(),
@@ -74,7 +71,6 @@ fun LoginScreen(
                 Text(
                     text = "SECURE AUTH PROTOCOL V9.2",
                     style = MaterialTheme.typography.labelMedium,
-                    color = terminalGreen.copy(alpha = alpha),
                     fontFamily = FontFamily.Monospace
                 )
 
