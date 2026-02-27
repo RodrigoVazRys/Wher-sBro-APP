@@ -3,6 +3,7 @@ package com.kazedev.wher_sbro.core.di
 // 1. Asegúrate de importar la clase BuildConfig generada por tu namespace
 import com.kazedev.wher_sbro.BuildConfig
 import com.kazedev.wher_sbro.core.network.AuthApiService
+import com.kazedev.wher_sbro.core.network.RoomApiService
 import com.kazedev.wher_sbro.core.network.TokenManager
 import dagger.Module
 import dagger.Provides
@@ -53,4 +54,11 @@ object NetworkModule {
     fun provideAuthApiService(retrofit: Retrofit): AuthApiService {
         return retrofit.create(AuthApiService::class.java)
     }
+
+    @Provides
+    @Singleton
+    fun provideRoomApiService(retrofit: Retrofit): RoomApiService {
+        return retrofit.create(RoomApiService::class.java)
+    }
+
 }
