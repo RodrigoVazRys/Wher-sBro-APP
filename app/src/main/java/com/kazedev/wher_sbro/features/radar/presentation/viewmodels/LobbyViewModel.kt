@@ -24,13 +24,21 @@ class LobbyViewModel @Inject constructor(
 
     init {
         viewModelScope.launch {
-            tokenManager.usernameFlow.collect { name ->
-                _uiState.update { it.copy(operatorName = name ?: "UNKNOWN_OPERATOR") }
-            }
-        }
-        viewModelScope.launch {
-            tokenManager.userIdFlow.collect { id ->
-                _uiState.update { it.copy(userId = id ?: 0) }
+            val token = tokenManager.getToken()
+
+            if (token == null) {
+                _uiState.update { it.copy(isSessionExpired = true) }
+            } else {
+                launch {
+                    tokenManager.usernameFlow.collect { name ->
+                        _uiState.update { it.copy(operatorName = name ?: "UNKNOWN_USER") }
+                    }
+                }
+                launch {
+                    tokenManager.userIdFlow.collect { id ->
+                        _uiState.update { it.copy(userId = id ?: 0) }
+                    }
+                }
             }
         }
     }
@@ -56,7 +64,6 @@ class LobbyViewModel @Inject constructor(
         }
     }
 
-    // <-- NUEVO: Ya no pide parámetros, usa los datos del State
     fun joinRoom() {
         val code = _uiState.value.frequencyCode
         val userId = _uiState.value.userId

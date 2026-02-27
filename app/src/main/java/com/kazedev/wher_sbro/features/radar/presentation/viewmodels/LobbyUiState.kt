@@ -7,5 +7,6 @@ data class LobbyUiState(
     val frequencyCode: String = "",
     val usersInRoom: List<String> = emptyList(),
     val roomCode: String = "",
-    val error: String? = null
+    val error: String? = null,
+    val isSessionExpired: Boolean = false
 )

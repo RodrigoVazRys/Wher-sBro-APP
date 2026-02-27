@@ -38,21 +38,25 @@ import com.kazedev.wher_sbro.features.radar.presentation.viewmodels.LobbyViewMod
 @Composable
 fun LobbyScreen(
     onNavigateToRadar: (roomCode: String, targetName: String) -> Unit,
+    onNavigateToLogin: () -> Unit,
     viewModel: LobbyViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsState()
 
-    // Cuando el VM ya tenga sala lista, navegamos
     LaunchedEffect(uiState.roomCode) {
         val code = uiState.roomCode
         if (code.isNotBlank()) {
-            // Elige de dónde sale el targetName (por ahora uso operatorName como fallback)
             val targetName = uiState.operatorName.ifBlank { "Target" }
 
             onNavigateToRadar(code, targetName)
 
-            // Importante: evitar que se vuelva a disparar al recomponer/volver
             viewModel.clearRoomCode()
+        }
+    }
+
+    LaunchedEffect(uiState.isSessionExpired) {
+        if (uiState.isSessionExpired) {
+            onNavigateToLogin()
         }
     }
 
