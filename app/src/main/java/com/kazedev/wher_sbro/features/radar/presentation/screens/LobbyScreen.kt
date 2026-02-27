@@ -43,12 +43,29 @@ import androidx.compose.runtime.LaunchedEffect
 @Composable
 fun LobbyScreen(
     onNavigateToRadar: (roomCode: String, targetName: String) -> Unit,
+    onNavigateToLogin: () -> Unit,
     viewModel: LobbyViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsState()
     var showJoinDialog by remember { mutableStateOf(false) }
 
 
+    LaunchedEffect(uiState.roomCode) {
+        val code = uiState.roomCode
+        if (code.isNotBlank()) {
+            val targetName = uiState.operatorName.ifBlank { "Target" }
+
+            onNavigateToRadar(code, targetName)
+
+            viewModel.clearRoomCode()
+        }
+    }
+
+    LaunchedEffect(uiState.isSessionExpired) {
+        if (uiState.isSessionExpired) {
+            onNavigateToLogin()
+        }
+    }
 
     val terminalGreen = Color(0xFF1AFA82)
     val darkBg = Color(0xFF030C05)

@@ -52,6 +52,12 @@ fun AppNavigation() {
                     navController.navigate(RadarRoute(roomCode, targetName)) {
                         launchSingleTop = true
                     }
+                },
+                onNavigateToLogin = {
+                    navController.navigate(LoginRoute) {
+                        popUpTo(0) { inclusive = true } // Limpia toda la pila de pantallas muertas
+                        launchSingleTop = true
+                    }
                 }
             )
         }

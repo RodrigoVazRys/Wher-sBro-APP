@@ -2,7 +2,9 @@ package com.kazedev.wher_sbro.core.di
 
 import com.kazedev.wher_sbro.features.auth.data.repositories.AuthRepositoryImpl
 import com.kazedev.wher_sbro.features.auth.domain.repositories.AuthRepository
+import com.kazedev.wher_sbro.features.radar.data.repositories.RadarRepositoryImpl
 import com.kazedev.wher_sbro.features.radar.data.repositories.RoomRepositoryImpl
+import com.kazedev.wher_sbro.features.radar.domain.repositories.RadarRepository
 import com.kazedev.wher_sbro.features.radar.domain.repositories.RoomRepository
 import dagger.Binds
 import dagger.Module
@@ -24,4 +26,10 @@ abstract class RepositoryModule {
     abstract fun bindRoomRepository(
         roomRepositoryImpl: RoomRepositoryImpl
     ): RoomRepository
+
+    @Binds
+    @Singleton
+    abstract fun bindRadarRepository(
+        radarRepositoryImpl: RadarRepositoryImpl
+    ): RadarRepository
 }
