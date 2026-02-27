@@ -114,4 +114,5 @@ dependencies {
     implementation(libs.hilt.android)
     implementation(libs.hilt.navigation.compose)
     ksp(libs.hilt.compiler)
+    implementation("androidx.datastore:datastore-preferences:1.0.0")
 }
