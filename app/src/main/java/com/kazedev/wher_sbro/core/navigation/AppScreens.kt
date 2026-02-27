@@ -10,3 +10,6 @@ object RegisterRoute
 
 @Serializable
 object RadarLobbyRoute
+
+@Serializable
+object RadarRoute

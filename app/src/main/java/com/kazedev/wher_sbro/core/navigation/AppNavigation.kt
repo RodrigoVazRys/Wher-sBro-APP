@@ -1,7 +1,7 @@
 package com.kazedev.wher_sbro.core.navigation
 
 import androidx.compose.runtime.Composable
-import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
@@ -9,10 +9,10 @@ import com.kazedev.wher_sbro.features.auth.presentation.screens.LoginScreen
 import com.kazedev.wher_sbro.features.auth.presentation.screens.RegisterScreen
 import com.kazedev.wher_sbro.features.auth.presentation.viewmodels.LoginViewModel
 import com.kazedev.wher_sbro.features.auth.presentation.viewmodels.RegisterViewModel
-// Importamos tu nueva pantalla del lobby
 import com.kazedev.wher_sbro.features.radar.presentation.screens.LobbyScreen
 import com.kazedev.wher_sbro.features.radar.presentation.viewmodels.LobbyViewModel
 
+import com.kazedev.wher_sbro.features.radar.presentation.screens.RadarScreen
 
 @Composable
 fun AppNavigation() {
@@ -20,7 +20,7 @@ fun AppNavigation() {
 
     NavHost(
         navController = navController,
-        startDestination = RadarLobbyRoute // <-- CAMBIO 1: Ahora arranca directo en el Lobby
+        startDestination = RadarRoute // Arranca directo en el Radar
     ) {
 
         // --- 1. PANTALLA DE LOGIN ---
@@ -59,6 +59,27 @@ fun AppNavigation() {
         composable<RadarLobbyRoute> {
             val viewModel: LobbyViewModel = hiltViewModel()
             LobbyScreen(viewModel = viewModel)
+//        composable<RadarLobbyRoute> {
+//            // Pasamos los callbacks reales para que funcione cuando la uses
+//            LobbyScreen(
+//                onNavigateToRadar = { room, user ->
+//                    navController.navigate(RadarRoute)
+//                }
+//            )
+//        }
+
+        // --- 4. PANTALLA DEL RADAR ---
+        composable<RadarRoute> {
+            RadarScreen(
+                roomCode = "2R2DA",     // Valor hardcodeado temporal
+                targetName = "ROY",  // Valor hardcodeado temporal
+                onDisconnect = {
+                    // Para probar, hacemos que el botón de desconexión nos regrese al Lobby
+                    navController.navigate(RadarLobbyRoute) {
+                        popUpTo(RadarRoute) { inclusive = true }
+                    }
+                }
+            )
         }
     }
 }
