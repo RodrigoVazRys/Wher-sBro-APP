@@ -28,8 +28,7 @@ class AuthRepositoryImpl @Inject constructor(
         }
     }
 
-    override suspend fun register(email: String, pass: String): Result<Boolean> {
-        // TODO: Implementar registro
+    override suspend fun register(username: String, email: String, pass: String): Result<Boolean> {
         return Result.success(true)
     }
 }

@@ -18,7 +18,7 @@ fun AppNavigation() {
 
     NavHost(
         navController = navController,
-        startDestination = RadarRoute // Arranca directo en el Radar
+        startDestination = LoginRoute
     ) {
 
         // --- 1. PANTALLA DE LOGIN ---

@@ -10,6 +10,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Email
 import androidx.compose.material.icons.filled.Key
+import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -37,6 +38,8 @@ fun RegisterScreen(
     onNavigateToLogin: () -> Unit,
     viewModel: RegisterViewModel = hiltViewModel()
 ) {
+    // Recolectamos el nuevo estado del username
+    val username by viewModel.username.collectAsStateWithLifecycle()
     val email by viewModel.email.collectAsStateWithLifecycle()
     val password by viewModel.password.collectAsStateWithLifecycle()
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
@@ -115,23 +118,36 @@ fun RegisterScreen(
                         }
                 )
 
-                Spacer(modifier = Modifier.height(16.dp))
+                Spacer(modifier = Modifier.height(2.dp))
 
+                // --- NUEVO CAMPO: NOMBRE DE USUARIO ---
+                TacticalInputField(
+                    value = username,
+                    onValueChange = { viewModel.onUsernameChanged(it) },
+                    label = "NOMBRE DE OPERADOR",
+                    placeholder = "Usuario",
+                    icon = Icons.Default.Person
+                )
+
+                Spacer(modifier = Modifier.height(24.dp))
+
+                // --- CAMPO: EMAIL ---
                 TacticalInputField(
                     value = email,
                     onValueChange = { viewModel.onEmailChanged(it) },
-                    label = "NUEVO USUARIO",
-                    placeholder = "Correo Electrónico",
+                    label = "CORREO ELECTRÓNICO", // Etiqueta ajustada
+                    placeholder = "ejemplo@correo.com",
                     icon = Icons.Default.Email
                 )
 
                 Spacer(modifier = Modifier.height(24.dp))
 
+                // --- CAMPO: CONTRASEÑA ---
                 TacticalInputField(
                     value = password,
                     onValueChange = { viewModel.onPasswordChanged(it) },
                     label = "CONTRASEÑA",
-                    placeholder = "Contraseña",
+                    placeholder = "Contraseña secreta",
                     icon = Icons.Default.Key,
                     isPassword = true
                 )
@@ -162,7 +178,7 @@ fun RegisterScreen(
                 Spacer(modifier = Modifier.height(24.dp))
 
                 Text(
-                    text = "¿Ya, tienes una cuenta?",
+                    text = "¿Ya tienes una cuenta?",
                     color = Color.Gray,
                     fontSize = 14.sp
                 )
@@ -174,7 +190,7 @@ fun RegisterScreen(
                     modifier = Modifier.clickable { onNavigateToLogin() }
                 )
 
-                Spacer(modifier = Modifier.height(48.dp))
+                Spacer(modifier = Modifier.height(12.dp))
 
                 Row(
                     modifier = Modifier.fillMaxWidth().padding(bottom = 8.dp),
