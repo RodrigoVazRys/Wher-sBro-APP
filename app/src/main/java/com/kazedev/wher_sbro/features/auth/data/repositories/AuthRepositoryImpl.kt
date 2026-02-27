@@ -1,13 +1,13 @@
 package com.kazedev.wher_sbro.features.auth.data.repositories
 
 import com.kazedev.wher_sbro.core.network.AuthApiService
+import com.kazedev.wher_sbro.core.network.RegisterRequest
 import com.kazedev.wher_sbro.core.network.TokenManager
 import com.kazedev.wher_sbro.features.auth.data.datasources.remote.mapper.toDomain
 import com.kazedev.wher_sbro.features.auth.data.datasources.remote.models.LoginRequest
 import com.kazedev.wher_sbro.features.auth.domain.entities.User
 import com.kazedev.wher_sbro.features.auth.domain.repositories.AuthRepository
 import javax.inject.Inject
-import kotlinx.coroutines.runBlocking
 
 class AuthRepositoryImpl @Inject constructor(
     private val apiService: AuthApiService,
@@ -32,6 +32,13 @@ class AuthRepositoryImpl @Inject constructor(
     }
 
     override suspend fun register(username: String, email: String, pass: String): Result<Boolean> {
-        return Result.success(true)
+        return try {
+            val request = RegisterRequest(username, email, pass)
+            apiService.register(request)
+
+            Result.success(true)
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
     }
 }
