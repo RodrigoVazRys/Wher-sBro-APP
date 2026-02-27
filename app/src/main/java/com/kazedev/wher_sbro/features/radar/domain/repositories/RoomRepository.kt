@@ -7,5 +7,5 @@ interface RoomRepository {
 
     suspend fun leave( code : String )
 
-    suspend fun getCode ()
+    suspend fun getCode (): Result<Room>
 }
