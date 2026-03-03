@@ -33,7 +33,6 @@ class RadarViewModel @Inject constructor(
         if (isTrackingInitialized) return
         isTrackingInitialized = true
 
-        // Forzamos el estado de "esperando" al iniciar, sin importar qué nombre nos pasen
         _uiState.update { it.copy(targetName = "Esperando señal...", isFriendConnected = false) }
 
         viewModelScope.launch {
@@ -66,17 +65,16 @@ class RadarViewModel @Inject constructor(
             "CONNECTED" -> {
                 _uiState.update { it.copy(isConnected = true, isLoading = false) }
             }
-            "FRIEND_JOINED" -> { // Si tu backend avisa cuando alguien entra
+            "FRIEND_JOINED" -> {
                 _uiState.update { it.copy(isFriendConnected = true, targetName = "AMIGO ENCONTRADO") }
             }
-            // OJO: Solo escuchamos FRIEND_MOVED. Ignoramos UPDATE_LOCATION para no leer nuestro eco.
             "FRIEND_MOVED" -> {
                 message.data?.let { friendCoords ->
                     _uiState.update {
                         it.copy(
                             friendLat = friendCoords.lat,
                             friendLon = friendCoords.lon,
-                            isFriendConnected = true, // Sabemos que ya está aquí
+                            isFriendConnected = true,
                             targetName = message.message ?: "Objetivo Localizado",
                             isLoading = false
                         )
@@ -86,7 +84,6 @@ class RadarViewModel @Inject constructor(
             }
             "ERROR" -> _uiState.update { it.copy(error = message.message) }
             "FRIEND_DISCONNECTED" -> {
-                // Si el amigo se va, borramos su punto del mapa y volvemos a esperar
                 _uiState.update {
                     it.copy(
                         isFriendConnected = false,
@@ -101,7 +98,7 @@ class RadarViewModel @Inject constructor(
 
     private fun recalculateRadar() {
         val state = _uiState.value
-        if (state.myLat == 0.0 || state.friendLat == 0.0) return // Esperando señal de ambos
+        if (state.myLat == 0.0 || state.friendLat == 0.0) return
 
         val distance = calculateDistance(state.myLat, state.myLon, state.friendLat, state.friendLon)
         val bearing = calculateBearing(state.myLat, state.myLon, state.friendLat, state.friendLon)
@@ -114,17 +111,13 @@ class RadarViewModel @Inject constructor(
         }
     }
 
-    // Se llama automáticamente cuando el usuario destruye la pantalla (le da al botón Atrás o Salir)
     override fun onCleared() {
         super.onCleared()
         radarRepository.disconnect()
     }
 
-    // --- MAGIA MATEMÁTICA ---
-
-    // Fórmula de Haversine: Calcula la distancia en metros en una esfera (la Tierra)
     private fun calculateDistance(lat1: Double, lon1: Double, lat2: Double, lon2: Double): Double {
-        val r = 6371e3 // Radio de la Tierra en metros
+        val r = 6371e3
         val phi1 = lat1 * PI / 180
         val phi2 = lat2 * PI / 180
         val deltaPhi = (lat2 - lat1) * PI / 180
@@ -138,7 +131,6 @@ class RadarViewModel @Inject constructor(
         return r * c
     }
 
-    // Calcula el ángulo (Bearing) para que la brújula apunte hacia tu amigo
     private fun calculateBearing(lat1: Double, lon1: Double, lat2: Double, lon2: Double): Double {
         val phi1 = lat1 * PI / 180
         val phi2 = lat2 * PI / 180
@@ -149,6 +141,6 @@ class RadarViewModel @Inject constructor(
         val x = cos(phi1) * sin(phi2) - sin(phi1) * cos(phi2) * cos(lambda2 - lambda1)
         val theta = atan2(y, x)
 
-        return (theta * 180 / PI + 360) % 360 // Normalizado de 0 a 360 grados
+        return (theta * 180 / PI + 360) % 360
     }
 }

@@ -1,6 +1,5 @@
 package com.kazedev.wher_sbro.core.di
 
-// 1. Asegúrate de importar la clase BuildConfig generada por tu namespace
 import com.kazedev.wher_sbro.BuildConfig
 import com.kazedev.wher_sbro.core.network.AuthApiService
 import com.kazedev.wher_sbro.core.network.RoomApiService

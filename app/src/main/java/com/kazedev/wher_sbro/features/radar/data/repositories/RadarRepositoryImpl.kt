@@ -19,12 +19,9 @@ class RadarRepositoryImpl @Inject constructor(
     private var webSocket: WebSocket? = null
     private val gson = Gson()
 
-    // Un SharedFlow con un buffer extra para no perder mensajes rápidos
     private val _incomingMessages = MutableSharedFlow<WsMessageDto>(extraBufferCapacity = 10)
 
     override fun connectToRadar(roomCode: String, token: String) {
-        // Transformamos tu URL base HTTP a WS (WebSocket)
-        // OJO: Ajusta "/ws/rooms/" según cómo hayas nombrado tu ruta en FastAPI
         val baseUrl = BuildConfig.BASE_URL_AUTH.replace("http", "ws").replace("https", "wss")
         val wsUrl = "${baseUrl}ws/rooms/$roomCode?token=$token"
 
@@ -41,7 +38,6 @@ class RadarRepositoryImpl @Inject constructor(
             override fun onMessage(webSocket: WebSocket, text: String) {
                 Log.d("RadarWS", "Mensaje recibido: $text")
                 try {
-                    // Convertimos el JSON de Python a nuestro objeto Kotlin
                     val message = gson.fromJson(text, WsMessageDto::class.java)
                     _incomingMessages.tryEmit(message)
                 } catch (e: Exception) {
@@ -63,7 +59,6 @@ class RadarRepositoryImpl @Inject constructor(
     }
 
     override fun getIncomingMessages(): Flow<WsMessageDto> {
-        // Exponemos el flujo de datos para que el ViewModel lo escuche
         return _incomingMessages.asSharedFlow()
     }
 
@@ -73,7 +68,6 @@ class RadarRepositoryImpl @Inject constructor(
             return
         }
 
-        // Empaquetamos la coordenada y la mandamos a Python
         val message = WsMessageDto(
             event = "UPDATE_LOCATION",
             data = coordinates,
@@ -85,7 +79,6 @@ class RadarRepositoryImpl @Inject constructor(
     }
 
     override fun disconnect() {
-        // El código 1000 es el estándar de éxito para cerrar un WS
         webSocket?.close(1000, "Cierre normal por el usuario")
         webSocket = null
     }

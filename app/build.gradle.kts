@@ -49,7 +49,7 @@ android {
         create("dev") {
             dimension = "environment"
             buildConfigField("String", "BASE_URL_AUTH", "\"https://wheresbro.alejandroz.cloud/\"")
-            resValue("string", "app_name", "Demo (DEV)")
+            resValue("string", "app_name", "Wher-sBro")
         }
 
         create("prod") {

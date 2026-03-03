@@ -76,13 +76,11 @@ fun RadarScreen(
         )
     }
 
-    // Paleta de colores
     val terminalGreen = Color(0xFF1AFA82)
     val darkBg = Color(0xFF030C05)
     val fieldBg = Color(0xFF0A160D)
     val alertRed = Color(0xFFE53935)
 
-    // Animación de barrido del radar (360 grados)
     val infiniteTransition = rememberInfiniteTransition(label = "radar")
     val radarRotation by infiniteTransition.animateFloat(
         initialValue = 0f,
@@ -105,7 +103,6 @@ fun RadarScreen(
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
 
-            // --- TOP BAR ---
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween,
@@ -142,7 +139,6 @@ fun RadarScreen(
 
             Spacer(modifier = Modifier.height(32.dp))
 
-            // --- CABECERA DE OBJETIVO DINÁMICA ---
             Text(
                 text = buildAnnotatedString {
                     if (uiState.isFriendConnected) {
@@ -161,7 +157,6 @@ fun RadarScreen(
 
             Spacer(modifier = Modifier.height(8.dp))
 
-            // Texto dinámico de estado (Cargando, Conectado o Error)
             Text(
                 text = uiState.error ?: if(uiState.isLoading) "⟳ ESPERANDO SEÑAL GPS..." else "⟳ CONEXIÓN ESTABLECIDA",
                 color = if(uiState.error != null) alertRed else terminalGreen.copy(alpha = 0.8f),
@@ -170,7 +165,6 @@ fun RadarScreen(
 
             Spacer(modifier = Modifier.weight(1f))
 
-            // --- EL RADAR TÁCTICO EN CANVAS ---
             Box(
                 modifier = Modifier.size(300.dp),
                 contentAlignment = Alignment.Center
@@ -179,16 +173,13 @@ fun RadarScreen(
                     val center = Offset(size.width / 2, size.height / 2)
                     val radius = size.width / 2
 
-                    // Anillos concéntricos
                     drawCircle(color = terminalGreen.copy(alpha = 0.15f), radius = radius, style = Stroke(1.dp.toPx()))
                     drawCircle(color = terminalGreen.copy(alpha = 0.15f), radius = radius * 0.66f, style = Stroke(1.dp.toPx()))
                     drawCircle(color = terminalGreen.copy(alpha = 0.15f), radius = radius * 0.33f, style = Stroke(1.dp.toPx()))
 
-                    // Líneas de ejes (Cruz)
                     drawLine(color = terminalGreen.copy(alpha = 0.15f), start = Offset(center.x, 0f), end = Offset(center.x, size.height))
                     drawLine(color = terminalGreen.copy(alpha = 0.15f), start = Offset(0f, center.y), end = Offset(size.width, center.y))
 
-                    // Barrido del radar rotando
                     withTransform({ rotate(radarRotation, center) }) {
                         drawArc(
                             brush = Brush.sweepGradient(
@@ -199,23 +190,17 @@ fun RadarScreen(
                         )
                     }
 
-                    // Punto central (Tú - siempre visible)
                     drawCircle(color = terminalGreen, radius = 6.dp.toPx(), center = center)
 
-                    // Solo dibujamos a tu amigo si la carga inicial ya pasó Y está conectado
                     if (uiState.isFriendConnected && !uiState.isLoading) {
-                        // Conversión polar a cartesiana.
-                        // Restamos 90° porque en el Canvas de Android, 0° está a la derecha (Este).
                         val angleRad = Math.toRadians((uiState.bearingDegrees - 90).toDouble())
 
-                        // Escalamos la distancia visual para que no se salga de la pantalla
                         val mappedDistance = (uiState.distanceMeters.toFloat() / 100f).coerceIn(0.2f, 0.9f)
                         val arrowDistance = radius * mappedDistance
 
                         val arrowX = center.x + (cos(angleRad) * arrowDistance).toFloat()
                         val arrowY = center.y + (sin(angleRad) * arrowDistance).toFloat()
 
-                        // Dibujamos el triángulo direccional de tu amigo
                         withTransform({
                             rotate(uiState.bearingDegrees, Offset(arrowX, arrowY))
                         }) {
@@ -230,7 +215,6 @@ fun RadarScreen(
                     }
                 }
 
-                // Puntos cardinales
                 Text("N", color = terminalGreen, modifier = Modifier.align(Alignment.TopCenter).padding(8.dp), fontFamily = FontFamily.Monospace, fontSize = 12.sp)
                 Text("S", color = terminalGreen, modifier = Modifier.align(Alignment.BottomCenter).padding(8.dp), fontFamily = FontFamily.Monospace, fontSize = 12.sp)
                 Text("E", color = terminalGreen, modifier = Modifier.align(Alignment.CenterEnd).padding(8.dp), fontFamily = FontFamily.Monospace, fontSize = 12.sp)
@@ -239,7 +223,6 @@ fun RadarScreen(
 
             Spacer(modifier = Modifier.weight(1f))
 
-            // --- ESTADÍSTICAS DEL PIE DE PÁGINA ---
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -249,7 +232,6 @@ fun RadarScreen(
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                // Distancia
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Box(
                         modifier = Modifier.size(40.dp).background(terminalGreen.copy(alpha = 0.2f), RoundedCornerShape(8.dp)),
@@ -266,7 +248,6 @@ fun RadarScreen(
                         Text("DISTANCIA", color = Color.Gray, style = MaterialTheme.typography.labelSmall, fontFamily = FontFamily.Monospace)
                         Row(verticalAlignment = Alignment.Bottom) {
                             Text(
-                                // Valor dinámico: Si no hay amigo, "--". Si hay, la distancia en metros.
                                 text = if(!uiState.isFriendConnected || uiState.isLoading) "--" else "~${uiState.distanceMeters}",
                                 color = Color.White, fontSize = 24.sp, fontWeight = FontWeight.Bold, fontFamily = FontFamily.Monospace
                             )
@@ -281,7 +262,6 @@ fun RadarScreen(
                     modifier = Modifier.height(40.dp).width(1.dp)
                 )
 
-                // Señal
                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
                     Text(
                         text = "SEÑAL",
@@ -301,7 +281,6 @@ fun RadarScreen(
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            // --- BOTÓN DE DESCONEXIÓN ---
             Button(
                 onClick = onDisconnect,
                 modifier = Modifier
